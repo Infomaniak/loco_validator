@@ -44,7 +44,7 @@ class FrenchEmailRule(Rule):
         self.pattern = re.compile(r"(?P<prefix>\w+\s)?(?=(?P<email>\b(e-|e)?mails?))")
         self.reason = None
 
-        self.authorized_words = ["infomaniak", "stockage", "adresse", "application"]
+        self.authorized_words = ["infomaniak", "stockage", "adresse", "application", "app"]
 
     def is_matching(self, input_string):
         results = re.search(self.pattern, input_string.lower())
