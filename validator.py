@@ -6,7 +6,10 @@ global_rules = [*forbidden_rules, ExistenceRule(r" \n", "No space before a new l
 
 language_rules = {
     "en": [ExistenceRule("e-mail", "Remove the hyphen")],
-    "fr": [FrenchEmailRule()],
+    "fr": [
+        FrenchEmailRule(),
+        ExistenceRule("événement", "Use 'évènement' instead") # As two spellings are possible, we choose to use "évènement" arbitrarily
+    ],
     "de": [
         ExistenceRule("ẞ"),
         ExistenceRule("gespräch", "Use 'Unterhaltung' instead"),
