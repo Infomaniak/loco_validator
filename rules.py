@@ -2,7 +2,16 @@ import re
 
 
 class Rule:
+    def __init__(self, exception_ids):
+        if exception_ids is None:
+            exception_ids = []
+
+        self.exception_ids = exception_ids
+
     def check(self, input_string, language, string_id):
+        if string_id in self.exception_ids:
+            return False
+
         if self.is_matching(input_string):
             self.warn(language, string_id, input_string)
             return True
@@ -24,7 +33,8 @@ def get_string_id_header(language, string_id):
 
 
 class ExistenceRule(Rule):
-    def __init__(self, sequence, custom_explanation=None):
+    def __init__(self, sequence, custom_explanation=None, exception_ids=None):
+        super().__init__(exception_ids)
         self.sequence = sequence.lower()
         self.custom_explanation = custom_explanation
 
@@ -40,7 +50,8 @@ class ExistenceRule(Rule):
 
 
 class FrenchEmailRule(Rule):
-    def __init__(self):
+    def __init__(self, exception_ids=None):
+        super().__init__(exception_ids)
         self.pattern = re.compile(r"(?P<prefix>\w+\s)?(?=(?P<email>\b(e-|e)?mails?))")
         self.reason = None
 

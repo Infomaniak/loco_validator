@@ -1,14 +1,20 @@
 from .rules import ExistenceRule, FrenchEmailRule
 
-forbidden_sequences = ["'", "..."]
-forbidden_rules = [ExistenceRule(sequence) for sequence in forbidden_sequences]
-global_rules = [*forbidden_rules, ExistenceRule(r" \n", "No space before a new line")]
+global_rules = [
+    ExistenceRule("'", exception_ids=[
+        "allDeletedFilePattern",  # kDrive
+        "allLastModifiedFilePattern",  # kDrive
+    ]),
+    ExistenceRule("..."),
+    ExistenceRule(r" \n", "No space before a new line")
+]
 
 language_rules = {
     "en": [ExistenceRule("e-mail", "Remove the hyphen")],
     "fr": [
         FrenchEmailRule(),
-        ExistenceRule("événement", "Use 'évènement' instead") # As two spellings are possible, we choose to use "évènement" arbitrarily
+        # As two spellings are possible, we choose to use "évènement" arbitrarily
+        ExistenceRule("événement", "Use 'évènement' instead"),
     ],
     "de": [
         ExistenceRule("ẞ"),
