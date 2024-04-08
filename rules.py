@@ -42,11 +42,11 @@ class ExistenceRule(Rule):
         return input_string.lower().__contains__(self.sequence)
 
     def get_explanation(self, string_value):
-        if self.custom_explanation is None:
-            explanation = f"found forbidden sequence [{self.sequence}]"
-        else:
-            explanation = f"[{self.sequence}] detected. {self.custom_explanation}"
-        return explanation
+        return (
+            f"found forbidden sequence [{self.sequence}]"
+            if self.custom_explanation is None
+            else f"[{self.sequence}] detected. {self.custom_explanation}"
+        )
 
 
 class FrenchEmailRule(Rule):
@@ -64,12 +64,9 @@ class FrenchEmailRule(Rule):
 
         email_wording = results.group("email")
         prefix_wording = results.group("prefix")
-        if prefix_wording is None or not self.is_unauthorized_prefix(prefix_wording):
-            self.reason = "e-mail"
-            return email_wording.startswith("mail")
-        else:
-            self.reason = f"{prefix_wording} mail"
-            return email_wording.startswith("e")
+        self.reason = "e-mail" if prefix_wording is None or not self.is_unauthorized_prefix(prefix_wording) else f"{prefix_wording} mail"
+        return email_wording.startswith("mail" if prefix_wording is None or not self.is_unauthorized_prefix(prefix_wording) else "e")
+
 
     def is_unauthorized_prefix(self, prefix_wording):
         return any(prefix_wording.__contains__(authorized_word) for authorized_word in self.authorized_words)
