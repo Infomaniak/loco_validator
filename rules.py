@@ -12,11 +12,11 @@ class Rule:
         if string_id in self.exception_ids:
             return False
 
-        if self.is_matching(input_string):
+        is_matching = self.is_matching(input_string)
+        if is_matching:
             self.warn(language, string_id, input_string)
-            return True
-        else:
-            return False
+
+        return is_matching
 
     def is_matching(self, input_string):
         raise NotImplementedError
@@ -66,7 +66,7 @@ class FrenchEmailRule(Rule):
         prefix_wording = results.group("prefix")
         if prefix_wording is None or not self.is_unauthorized_prefix(prefix_wording):
             self.reason = "e-mail"
-            return email_wording.startswith("mail")
+            return email_wording.startswith("mail") or email_wording.startswith("email")
         else:
             self.reason = f"{prefix_wording} mail"
             return email_wording.startswith("e")
