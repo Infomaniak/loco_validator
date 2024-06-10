@@ -12,7 +12,9 @@ global_rules = [
 language_rules = {
     "en": [ExistenceRule("e-mail", "Remove the hyphen")],
     "fr": [
-        FrenchEmailRule(),
+        FrenchEmailRule(exception_ids=[
+            "faqUrl"  # kMail
+        ]),
         # As two spellings are possible, we choose to use "évènement" arbitrarily
         ExistenceRule("événement", "Use 'évènement' instead"),
     ],
