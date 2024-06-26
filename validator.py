@@ -23,7 +23,8 @@ language_rules = {
         ExistenceRule("gespräch", "Use 'Unterhaltung' instead"),
         ExistenceRule(  # Won't detect conjugated usages of Aufnehmen because it's a particle verb
             "aufnehmen",
-            "'Aufnehmen' means to shoot a video where as 'Speichern' means to save a file, to save settings, etc."
+            "'Aufnehmen' means to shoot/take a video/picture where as 'Speichern' means to save a file, to save settings, etc.",
+            ["buttonTakePhotoOrVideo"]  # kDrive
         ),
     ],
     "it": [
