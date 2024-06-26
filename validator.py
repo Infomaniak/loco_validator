@@ -21,6 +21,10 @@ language_rules = {
     "de": [
         ExistenceRule("ẞ"),
         ExistenceRule("gespräch", "Use 'Unterhaltung' instead"),
+        ExistenceRule(  # Won't detect conjugated usages of Aufnehmen because it's a particle verb
+            "aufnehmen",
+            "'Aufnehmen' means to shoot a video where as 'Speichern' means to save a file, to save settings, etc."
+        ),
     ],
     "it": [
         ExistenceRule("oscuro", "In the context of a dark and light theme, use 'scuro'"),
