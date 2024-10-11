@@ -34,14 +34,24 @@ language_rules = {
             "'Aufnehmen' means to shoot/take a video/picture where as 'Speichern' means to save a file, to save settings, etc.",
             ["buttonTakePhotoOrVideo"]  # kDrive
         ),
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule("?"),
+        NoSpaceBeforeRule("!"),
     ],
     "it": [
         ExistenceRule("oscuro", "In the context of a dark and light theme, use 'scuro'"),
         ExistenceRule("claro", "In the context of a dark and light theme, use 'chiaro'"),
         ExistenceRule("luce", "In the context of a dark and light theme, use 'chiaro'"),
         ExistenceRule("thema", "In the context of a dark and light theme, use 'tema'"),
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule("?"),
+        NoSpaceBeforeRule("!"),
     ],
-    "es": []
+    "es": [
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule("?"),
+        NoSpaceBeforeRule("!"),
+    ]
 }
 
 
