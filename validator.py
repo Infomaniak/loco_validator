@@ -1,4 +1,4 @@
-from .rules import ExistenceRule, FrenchEmailRule
+from .rules import ExistenceRule, FrenchEmailRule, NoSpaceBeforeRule, SpaceBeforeRule, SpaceBeforeColonRule
 
 global_rules = [
     ExistenceRule("'", exception_ids=[
@@ -10,13 +10,21 @@ global_rules = [
 ]
 
 language_rules = {
-    "en": [ExistenceRule("e-mail", "Remove the hyphen")],
+    "en": [
+        ExistenceRule("e-mail", "Remove the hyphen"),
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule("?"),
+        NoSpaceBeforeRule("!"),
+    ],
     "fr": [
         FrenchEmailRule(exception_ids=[
             "faqUrl"  # kMail
         ]),
         # As two spellings are possible, we choose to use "évènement" arbitrarily
         ExistenceRule("événement", "Use 'évènement' instead"),
+        SpaceBeforeColonRule(),
+        SpaceBeforeRule("?"),
+        SpaceBeforeRule("!"),
     ],
     "de": [
         ExistenceRule("ẞ"),
