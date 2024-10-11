@@ -49,6 +49,53 @@ class ExistenceRule(Rule):
         return explanation
 
 
+class NoSpaceBeforeRule(ExistenceRule):
+    def __init__(self, sequence, exception_ids=None):
+        super().__init__(" " + sequence, f"found a forbidden space before [{sequence}]", exception_ids)
+
+
+class SpaceBeforeRule(Rule):
+    def __init__(self, sequence, exception_ids=None):
+        super().__init__(exception_ids)
+        self.sequence = sequence.lower()
+
+    def is_matching(self, input_string):
+        matches = input_string.split(self.sequence)
+        if len(matches) == 1:
+            return False
+
+        for match in matches[:-1]:
+            if match[-1] != " ":
+                return True
+
+        return False
+
+    def get_explanation(self, string_value):
+        return f"found a missing space before [{self.sequence}]"
+
+
+class SpaceBeforeColonRule(Rule):
+    def __init__(self, exception_ids=None):
+        super().__init__(exception_ids)
+
+    def is_matching(self, input_string):
+        matches = input_string.split(":")
+        if len(matches) == 1:
+            return False
+
+        for match in matches[:-1]:
+            if match.startswith("http"):
+                continue
+
+            if match[-1] != " ":
+                return True
+
+        return False
+
+    def get_explanation(self, string_value):
+        return f"found a missing space before [:]"
+
+
 class FrenchEmailRule(Rule):
     def __init__(self, exception_ids=None):
         super().__init__(exception_ids)
