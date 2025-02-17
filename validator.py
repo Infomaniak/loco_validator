@@ -34,6 +34,10 @@ language_rules = {
             "'Aufnehmen' means to shoot/take a video/picture where as 'Speichern' means to save a file, to save settings, etc.",
             ["buttonTakePhotoOrVideo"]  # kDrive
         ),
+        ExistenceRule(
+            "Überweis",
+            "Use 'Transfer' or derivations of it if possible. 'Überweisen' is for transfering money or hospital patients",
+        ),
         NoSpaceBeforeRule(":"),
         NoSpaceBeforeRule("?"),
         NoSpaceBeforeRule("!"),
