@@ -22,7 +22,10 @@ language_rules = {
         ]),
         # As two spellings are possible, we choose to use "évènement" arbitrarily
         ExistenceRule("événement", "Use 'évènement' instead"),
-        SpaceBeforeColonRule(),
+        SpaceBeforeColonRule(exception_ids=[
+            "allDeletedFilePattern",  # kDrive
+            "allLastModifiedFilePattern",  # kDrive
+        ]),
         SpaceBeforeRule("?"),
         SpaceBeforeRule("!"),
     ],
