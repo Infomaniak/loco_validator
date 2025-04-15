@@ -5,7 +5,7 @@ global_rules = [
         "allDeletedFilePattern",  # kDrive
         "allLastModifiedFilePattern",  # kDrive
     ]),
-    ExistenceRule("..."),
+    ExistenceRule("...", "Use '…' so soft wrapping won't ever wrap text inbetween some of the dots"),
     ExistenceRule(r" \n", "No space before a new line")
 ]
 
@@ -30,7 +30,7 @@ language_rules = {
         SpaceBeforeRule("!"),
     ],
     "de": [
-        ExistenceRule("ẞ"),
+        ExistenceRule("ẞ", "Replace with 'ss' to better suit swiss-german"),
         ExistenceRule("gespräch", "Use 'Unterhaltung' instead"),
         ExistenceRule(  # Won't detect conjugated usages of Aufnehmen because it's a particle verb
             "aufnehmen",
