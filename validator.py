@@ -19,8 +19,9 @@ language_rules = {
     "fr": [
         FrenchEmailRule(exception_ids=[
             "faqUrl",  # kMail
-            "kSuiteProQuotasAlertDescription", # Mail (kSuite)
-            "kSuiteProQuotasAlertFullDescription", # Mail (kSuite)
+            "kSuiteProQuotasAlertDescription",  # Core (kSuite)
+            "kSuiteProQuotasAlertFullDescription",  # Core (kSuite)
+            "myKSuiteDashboardFunctionalityMailAndDrive",  # Core (kSuite)
         ]),
         # As two spellings are possible, we choose to use "évènement" arbitrarily
         ExistenceRule("événement", "Use 'évènement' instead"),
