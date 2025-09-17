@@ -22,6 +22,8 @@ language_rules = {
             "kSuiteProQuotasAlertDescription",  # Mail (kSuite)
             "kSuiteProQuotasAlertFullDescription",  # Mail (kSuite)
             "myKSuiteDashboardFunctionalityMailAndDrive",  # Core (kSuite)
+            "kSuiteStandardMailLabel",  # Core (kSuite pro)
+            "kSuiteStandardMailLabelBold",  # Core (kSuite pro)
         ]),
         # As two spellings are possible, we choose to use "évènement" arbitrarily
         ExistenceRule("événement", "Use 'évènement' instead"),
