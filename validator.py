@@ -6,7 +6,8 @@ global_rules = [
         "allLastModifiedFilePattern",  # kDrive
     ]),
     ExistenceRule("...", "Use '…' so soft wrapping won't ever wrap text inbetween some of the dots"),
-    ExistenceRule(r" \n", "No space before a new line")
+    ExistenceRule(r" \n", "No space before a new line"),
+    ExistenceRule(r"\\n", "No escaped new line. You probably meant to add a real new line"),
 ]
 
 language_rules = {
