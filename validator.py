@@ -64,6 +64,9 @@ language_rules = {
         NoSpaceBeforeRule(":"),
         NoSpaceBeforeRule("?"),
         NoSpaceBeforeRule("!"),
+        ExistenceRule("basura", "The trash is usually translated as 'papelera' instead"),
+        ExistenceRule("discapacitado", "To say that someting is deactivated use 'desactivado' instead"),
+        ExistenceRule("hilo", "When talking about a conversation thread, use 'conversación' instead"),
     ]
 }
 
