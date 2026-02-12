@@ -1,7 +1,7 @@
 from .rules import ExistenceRule, FrenchEmailRule, NoSpaceBeforeRule, SpaceBeforeRule, SpaceBeforeColonRule
 
 global_rules = [
-    ExistenceRule("'", exception_ids=[
+    ExistenceRule("'", "Use the real apostrophe '’' instead", exception_ids=[
         "allDeletedFilePattern",  # kDrive
         "allLastModifiedFilePattern",  # kDrive
     ]),
