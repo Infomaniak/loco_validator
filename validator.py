@@ -67,6 +67,47 @@ language_rules = {
         ExistenceRule("basura", "The trash is usually translated as 'papelera' instead"),
         ExistenceRule("discapacitado", "To say that someting is deactivated use 'desactivado' instead"),
         ExistenceRule("hilo", "When talking about a conversation thread, use 'conversación' instead"),
+    ],
+    "da": [
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule("?"),
+        NoSpaceBeforeRule("!"),
+    ],
+    "el": [
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule(";"),
+        ExistenceRule("?", "In greek, the '?' is not used, instead they use a special unicode character U+037E ';'"),
+        NoSpaceBeforeRule("!"),
+    ],
+    "fi": [
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule("?"),
+        NoSpaceBeforeRule("!"),
+    ],
+    "nl": [
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule("?"),
+        NoSpaceBeforeRule("!"),
+    ],
+    "no": [
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule("?"),
+        NoSpaceBeforeRule("!"),
+    ],
+    "pl": [
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule("?"),
+        NoSpaceBeforeRule("!"),
+    ],
+    "pt": [
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule("?"),
+        NoSpaceBeforeRule("!"),
+    ],
+    "sv": [
+        NoSpaceBeforeRule(":"),
+        NoSpaceBeforeRule("?"),
+        NoSpaceBeforeRule("!"),
     ]
 }
 
