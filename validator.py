@@ -119,7 +119,7 @@ def validate_string(language, name, value):
         if global_rule.check(value, language, name):
             error_count += 1
 
-    for language_rule in language_rules[language]:
+    for language_rule in language_rules.get(language, []):
         if language_rule.check(value, language, name):
             error_count += 1
 
