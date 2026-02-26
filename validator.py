@@ -84,12 +84,12 @@ language_rules = {
         NoSpaceBeforeRule("?"),
         NoSpaceBeforeRule("!"),
     ],
-    "nl": [
+    "nb": [
         NoSpaceBeforeRule(":"),
         NoSpaceBeforeRule("?"),
         NoSpaceBeforeRule("!"),
     ],
-    "no": [
+    "nl": [
         NoSpaceBeforeRule(":"),
         NoSpaceBeforeRule("?"),
         NoSpaceBeforeRule("!"),
