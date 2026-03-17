@@ -103,6 +103,10 @@ language_rules = {
         NoSpaceBeforeRule(":"),
         NoSpaceBeforeRule("?"),
         NoSpaceBeforeRule("!"),
+        ExistenceRule("exclu", "Don't use the verb excluir (pt-BR) when deleting something, use 'eliminar' (pt-PT) instead"),
+        ExistenceRule("senha", "Don't use 'senha' (pt-BR) for password, use 'palavra-passe' (pt-PT) instead"),
+        ExistenceRule("usuário", "Don't use 'usuário' (pt-BR) for a user, use 'utilizador' (pt-PT) instead"),
+        ExistenceRule("exclu", "Don't use 'celular' (pt-BR) for a mobile phone, use 'telemóvel' (pt-PT) instead"),
     ],
     "sv": [
         NoSpaceBeforeRule(":"),
