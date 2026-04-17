@@ -49,6 +49,23 @@ class ExistenceRule(Rule):
         return explanation
 
 
+class EndsWithRule(Rule):
+    def __init__(self, sequence, custom_explanation=None, exception_ids=None):
+        super().__init__(exception_ids)
+        self.sequence = sequence.lower()
+        self.custom_explanation = custom_explanation
+
+    def is_matching(self, input_string):
+        return input_string.lower().endswith(self.sequence)
+
+    def get_explanation(self, string_value):
+        if self.custom_explanation is None:
+            explanation = f"ends with forbidden sequence [{self.sequence}]"
+        else:
+            explanation = f"ending [{self.sequence}] detected. {self.custom_explanation}"
+        return explanation
+
+
 class NoSpaceBeforeRule(ExistenceRule):
     def __init__(self, sequence, exception_ids=None):
         super().__init__(" " + sequence, f"found a forbidden space before [{sequence}]", exception_ids)

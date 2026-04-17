@@ -1,4 +1,4 @@
-from .rules import ExistenceRule, FrenchEmailRule, NoSpaceBeforeRule, SpaceBeforeRule, SpaceBeforeColonRule
+from .rules import ExistenceRule, FrenchEmailRule, NoSpaceBeforeRule, SpaceBeforeRule, SpaceBeforeColonRule, EndsWithRule
 
 global_rules = [
     ExistenceRule("'", "Use the real apostrophe '’' instead", exception_ids=[
@@ -7,7 +7,9 @@ global_rules = [
     ]),
     ExistenceRule("...", "Use '…' so soft wrapping won't ever wrap text inbetween some of the dots"),
     ExistenceRule(r" \n", "No space before a new line"),
+    ExistenceRule(r"\n ", "No space after a new line"),
     ExistenceRule(r"\\n", "No escaped new line. You probably meant to add a real new line"),
+    EndsWithRule(r"\u0020", "No space at the end of a translation"),
 ]
 
 language_rules = {
