@@ -9,7 +9,10 @@ global_rules = [
     ExistenceRule(r" \n", "No space before a new line"),
     ExistenceRule(r"\n ", "No space after a new line"),
     ExistenceRule(r"\\n", "No escaped new line. You probably meant to add a real new line"),
-    EndsWithRule(r"\u0020", "No space at the end of a translation"),
+    # For Android because of the XML format that converts trailing spaces as the "\u0020" string of characters
+    EndsWithRule(r"\u0020", "A space at the end of a translation is an error most of the time"),
+    # For pretty much every other formats
+    EndsWithRule(" ", "A space at the end of a translation is an error most of the time"),
 ]
 
 language_rules = {
