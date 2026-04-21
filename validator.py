@@ -30,6 +30,7 @@ language_rules = {
         NoSpaceBeforeRule(":"),
         NoSpaceBeforeRule("?"),
         NoSpaceBeforeRule("!"),
+        ExistenceRule("color", "Use the british spelling 'colour'"),
     ],
     "fr": [
         FrenchEmailRule(exception_ids=[
