@@ -136,6 +136,7 @@ cross_locale_rules = [
         "onboardingExpirationSubtitleTemplate",  # SwissTransfer
         "sharedConflictDescription",  # kDrive
     ]),
+    ConsistentEndingRule("\\n"),
 ]
 
 
