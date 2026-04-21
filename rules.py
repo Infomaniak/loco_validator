@@ -198,4 +198,10 @@ class ConsistentEndingRule(CrossLocaleRule):
     def get_explanation(self, translations):
         ends_with = sorted(locale for locale, value in translations.items() if value.endswith(self.suffix))
         does_not = sorted(locale for locale, value in translations.items() if not value.endswith(self.suffix))
-        return f"inconsistent ending '{self.suffix}' present in [{', '.join(ends_with)}] but missing in [{', '.join(does_not)}]"
+
+        if len(ends_with) == 1:
+            return f"inconsistent ending '{self.suffix}' only present in '{ends_with[0]}'"
+        elif len(does_not) == 1:
+            return f"inconsistent ending '{self.suffix}' only missing in '{does_not[0]}'"
+        else:
+            return f"inconsistent ending '{self.suffix}' present in [{', '.join(ends_with)}] but missing in [{', '.join(does_not)}]"
