@@ -134,6 +134,7 @@ cross_locale_rules = [
     ConsistentEndingRule(".", exception_ids=[
         "onboardingExpirationSubtitleArgument",  # SwissTransfer
         "onboardingExpirationSubtitleTemplate",  # SwissTransfer
+        "sharedConflictDescription",  # kDrive
     ]),
 ]
 
