@@ -1,5 +1,12 @@
-from .rules import ExistenceRule, FrenchEmailRule, NoSpaceBeforeRule, SpaceBeforeRule, SpaceBeforeColonRule, EndsWithRule, \
-    ConsistentEndingRule
+from .rules import (
+    ExistenceRule,
+    FrenchEmailRule,
+    NoSpaceBeforeRule,
+    SpaceBeforeRule,
+    SpaceBeforeColonRule,
+    EndsWithRule,
+    ConsistentEndingRule,
+)
 
 global_rules = [
     ExistenceRule("'", "Use the real apostrophe '’' instead", exception_ids=[
