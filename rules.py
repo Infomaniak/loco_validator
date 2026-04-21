@@ -204,4 +204,4 @@ class ConsistentEndingRule(CrossLocaleRule):
         elif len(does_not) == 1:
             return f"inconsistent ending '{self.suffix}' only missing in '{does_not[0]}'"
         else:
-            return f"inconsistent ending '{self.suffix}' present in [{', '.join(ends_with)}] but missing in [{', '.join(does_not)}]"
+            return f"inconsistent ending '{self.suffix}' present in [{', '.join(ends_with)}] and missing in [{', '.join(does_not)}]"
