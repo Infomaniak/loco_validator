@@ -131,7 +131,10 @@ language_rules = {
 }
 
 cross_locale_rules = [
-    ConsistentEndingRule("."),
+    ConsistentEndingRule(".", exception_ids=[
+        "onboardingExpirationSubtitleArgument",  # SwissTransfer
+        "onboardingExpirationSubtitleTemplate",  # SwissTransfer
+    ]),
 ]
 
 
