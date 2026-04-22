@@ -1,4 +1,12 @@
-from .rules import ExistenceRule, FrenchEmailRule, NoSpaceBeforeRule, SpaceBeforeRule, SpaceBeforeColonRule, EndsWithRule
+from .rules import (
+    ExistenceRule,
+    FrenchEmailRule,
+    NoSpaceBeforeRule,
+    SpaceBeforeRule,
+    SpaceBeforeColonRule,
+    EndsWithRule,
+    ConsistentEndingRule,
+)
 
 global_rules = [
     ExistenceRule("'", "Use the real apostrophe '’' instead", exception_ids=[
@@ -29,6 +37,7 @@ language_rules = {
         NoSpaceBeforeRule(":"),
         NoSpaceBeforeRule("?"),
         NoSpaceBeforeRule("!"),
+        ExistenceRule("color", "Use the british spelling 'colour'"),
     ],
     "fr": [
         FrenchEmailRule(exception_ids=[
@@ -88,7 +97,8 @@ language_rules = {
     ],
     "el": [
         NoSpaceBeforeRule(":"),
-        NoSpaceBeforeRule(";"),
+        NoSpaceBeforeRule(";"),  # U+037E
+        NoSpaceBeforeRule(";"),  # Standard semicolon
         ExistenceRule("?", "In greek, the '?' is not used, instead they use a special unicode character U+037E ';'"),
         NoSpaceBeforeRule("!"),
     ],
@@ -128,6 +138,15 @@ language_rules = {
     ]
 }
 
+cross_locale_rules = [
+    ConsistentEndingRule(".", exception_ids=[
+        "onboardingExpirationSubtitleArgument",  # SwissTransfer
+        "onboardingExpirationSubtitleTemplate",  # SwissTransfer
+        "sharedConflictDescription",  # kDrive
+    ]),
+    ConsistentEndingRule("\\n"),
+]
+
 
 def validate_string(language, name, value):
     error_count = 0
@@ -138,6 +157,25 @@ def validate_string(language, name, value):
 
     for language_rule in language_rules.get(language, []):
         if language_rule.check(value, language, name):
+            error_count += 1
+
+    return error_count
+
+
+def validate_key_across_locales(name, translations):
+    """Validate a key across all its locale translations.
+
+    Args:
+        name: The key identifier.
+        translations: A dict of {locale: value} for this key.
+
+    Returns:
+        The number of cross-locale rule violations for this key.
+    """
+    error_count = 0
+
+    for rule in cross_locale_rules:
+        if rule.check(name, translations):
             error_count += 1
 
     return error_count

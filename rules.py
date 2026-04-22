@@ -140,3 +140,68 @@ class FrenchEmailRule(Rule):
 
     def get_explanation(self, string_value):
         return f"in french only '{self.reason}' is authorized"
+
+
+class CrossLocaleRule:
+    """Base class for rules that validate a key across all its locale translations at once."""
+
+    def __init__(self, exception_ids=None):
+        if exception_ids is None:
+            exception_ids = []
+
+        self.exception_ids = exception_ids
+
+    def check(self, string_id, translations):
+        """Check a key across all its translations.
+
+        Args:
+            string_id: The key identifier.
+            translations: A dict of {locale: value} for this key.
+
+        Returns:
+            True if the rule detected an error, False otherwise.
+        """
+        if string_id in self.exception_ids:
+            return False
+
+        is_matching = self.is_matching(translations)
+        if is_matching:
+            self.warn(string_id, translations)
+
+        return is_matching
+
+    def is_matching(self, translations):
+        """Return True if the translations violate the rule."""
+        raise NotImplementedError
+
+    def warn(self, string_id, translations):
+        header = get_string_id_header("all", string_id)
+        print(f"{header}{self.get_explanation(translations)}")
+
+    def get_explanation(self, translations):
+        raise NotImplementedError("CrossLocaleRule did not specify an explanation message")
+
+
+class ConsistentEndingRule(CrossLocaleRule):
+    """Ensures all translations of a key either all end with a given suffix or none do."""
+
+    def __init__(self, suffix, exception_ids=None):
+        super().__init__(exception_ids)
+        self.suffix = suffix
+
+    def is_matching(self, translations):
+        ends_with = {locale for locale, value in translations.items() if value.endswith(self.suffix)}
+        does_not = set(translations.keys()) - ends_with
+
+        return len(ends_with) > 0 and len(does_not) > 0
+
+    def get_explanation(self, translations):
+        ends_with = sorted(locale for locale, value in translations.items() if value.endswith(self.suffix))
+        does_not = sorted(locale for locale, value in translations.items() if not value.endswith(self.suffix))
+
+        if len(ends_with) == 1:
+            return f"inconsistent ending '{self.suffix}' only present in '{ends_with[0]}'"
+        elif len(does_not) == 1:
+            return f"inconsistent ending '{self.suffix}' only missing in '{does_not[0]}'"
+        else:
+            return f"inconsistent ending '{self.suffix}' present in [{', '.join(ends_with)}] and missing in [{', '.join(does_not)}]"
