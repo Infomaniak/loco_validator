@@ -12,6 +12,9 @@ class Rule:
         if string_id in self.exception_ids:
             return False
 
+        if input_string == "" or input_string is None:
+            return False
+
         is_matching = self.is_matching(input_string)
         if is_matching:
             self.warn(language, string_id, input_string)
@@ -190,14 +193,14 @@ class ConsistentEndingRule(CrossLocaleRule):
         self.suffix = suffix
 
     def is_matching(self, translations):
-        ends_with = {locale for locale, value in translations.items() if value.endswith(self.suffix)}
+        ends_with = {locale for locale, value in translations.items() if (value or "").endswith(self.suffix)}
         does_not = set(translations.keys()) - ends_with
 
         return len(ends_with) > 0 and len(does_not) > 0
 
     def get_explanation(self, translations):
-        ends_with = sorted(locale for locale, value in translations.items() if value.endswith(self.suffix))
-        does_not = sorted(locale for locale, value in translations.items() if not value.endswith(self.suffix))
+        ends_with = sorted(locale for locale, value in translations.items() if (value or "").endswith(self.suffix))
+        does_not = sorted(locale for locale, value in translations.items() if not (value or "").endswith(self.suffix))
 
         if len(ends_with) == 1:
             return f"inconsistent ending '{self.suffix}' only present in '{ends_with[0]}'"
