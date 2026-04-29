@@ -53,6 +53,7 @@ language_rules = {
         SpaceBeforeColonRule(exception_ids=[
             "allDeletedFilePattern",  # kDrive
             "allLastModifiedFilePattern",  # kDrive
+            "liteSyncUnavailableDescription",  # kDrive desktop
         ]),
         SpaceBeforeRule("?"),
         SpaceBeforeRule("!"),
