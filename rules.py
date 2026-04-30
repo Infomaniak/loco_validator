@@ -185,6 +185,99 @@ class CrossLocaleRule:
         raise NotImplementedError("CrossLocaleRule did not specify an explanation message")
 
 
+class PlaceholderConsistencyRule(CrossLocaleRule):
+    """Ensures that all translations of a key use the same placeholders (e.g. %s, %d, %1$s, %@).
+
+    Plurals (when the value is a dict keyed by plural form like 'one', 'other', ...) are checked
+    per form across locales: different forms of the same plural may legitimately use different
+    placeholders, but a given form must be consistent across locales.
+    """
+
+    # Matches printf-style and Objective-C/Swift placeholders:
+    #   %s, %d, %i, %f, %x, %c, %@, with optional positional index (%1$s),
+    #   flags, width, precision and length modifiers (%-3.2f, %ld, ...).
+    # The `%%` alternative captures escaped percents so they aren't mistaken for placeholders.
+    PLACEHOLDER_PATTERN = re.compile(
+        r"%%|%(?:\d+\$)?[+\-# 0]*\d*(?:\.\d+)?[hlLzjt]*[a-zA-Z@]"
+    )
+
+    @classmethod
+    def _iter_placeholders(cls, value):
+        for match in cls.PLACEHOLDER_PATTERN.finditer(value or ""):
+            text = match.group(0)
+            if text == "%%":
+                continue
+            yield text
+
+    def _placeholders(self, value):
+        return tuple(sorted(self._iter_placeholders(value)))
+
+    @staticmethod
+    def _is_plural(value):
+        return isinstance(value, dict)
+
+    def is_matching(self, translations):
+        plural_locales = {locale: value for locale, value in translations.items() if self._is_plural(value)}
+        plain_locales = {locale: value for locale, value in translations.items() if not self._is_plural(value)}
+
+        # Mixed: some locales declare the key as a plural and others as a plain string.
+        if plural_locales and plain_locales:
+            return True
+
+        if plural_locales:
+            forms = set()
+            for value in plural_locales.values():
+                forms.update(value.keys())
+            for form in forms:
+                form_translations = {
+                    locale: value.get(form, "") for locale, value in plural_locales.items() if form in value
+                }
+                if len({self._placeholders(v) for v in form_translations.values()}) > 1:
+                    return True
+            return False
+
+        return len({self._placeholders(v) for v in plain_locales.values()}) > 1
+
+    def get_explanation(self, translations):
+        plural_locales = {locale: value for locale, value in translations.items() if self._is_plural(value)}
+        plain_locales = {locale: value for locale, value in translations.items() if not self._is_plural(value)}
+
+        if plural_locales and plain_locales:
+            plural = sorted(plural_locales.keys())
+            plain = sorted(plain_locales.keys())
+            return (
+                "inconsistent placeholders: key declared as a plural in "
+                f"[{', '.join(plural)}] but as a plain string in [{', '.join(plain)}]"
+            )
+
+        if plural_locales:
+            forms = set()
+            for value in plural_locales.values():
+                forms.update(value.keys())
+            messages = []
+            for form in sorted(forms):
+                form_translations = {
+                    locale: value.get(form, "") for locale, value in plural_locales.items() if form in value
+                }
+                if len({self._placeholders(v) for v in form_translations.values()}) > 1:
+                    messages.append(f"plural form '{form}': {self._format_groups(form_translations)}")
+            return "inconsistent placeholders across locales for " + "; ".join(messages)
+
+        return f"inconsistent placeholders across locales: {self._format_groups(plain_locales)}"
+
+    @staticmethod
+    def _format_groups(translations):
+        groups = {}
+        for locale, value in translations.items():
+            placeholders = tuple(sorted(PlaceholderConsistencyRule._iter_placeholders(value)))
+            groups.setdefault(placeholders, []).append(locale)
+        parts = []
+        for placeholders, locales in sorted(groups.items(), key=lambda item: sorted(item[1])):
+            display = f"[{', '.join(placeholders)}]" if placeholders else "[]"
+            parts.append(f"{display} in [{', '.join(sorted(locales))}]")
+        return ", ".join(parts)
+
+
 class ConsistentEndingRule(CrossLocaleRule):
     """Ensures all translations of a key either all end with a given suffix or none do."""
 
