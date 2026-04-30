@@ -209,8 +209,9 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
                 continue
             yield text
 
-    def _placeholders(self, value):
-        return tuple(sorted(self._iter_placeholders(value)))
+    @classmethod
+    def _placeholders(cls, value):
+        return tuple(sorted(cls._iter_placeholders(value)))
 
     @staticmethod
     def _is_plural(value):
@@ -225,13 +226,8 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
             return True
 
         if plural_locales:
-            forms = set()
-            for value in plural_locales.values():
-                forms.update(value.keys())
-            for form in forms:
-                form_translations = {
-                    locale: value.get(form, "") for locale, value in plural_locales.items() if form in value
-                }
+            for form in self._collect_plural_forms(plural_locales):
+                form_translations = self._get_form_translations(plural_locales, form)
                 if len({self._placeholders(v) for v in form_translations.values()}) > 1:
                     return True
             return False
@@ -251,14 +247,9 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
             )
 
         if plural_locales:
-            forms = set()
-            for value in plural_locales.values():
-                forms.update(value.keys())
             messages = []
-            for form in sorted(forms):
-                form_translations = {
-                    locale: value.get(form, "") for locale, value in plural_locales.items() if form in value
-                }
+            for form in sorted(self._collect_plural_forms(plural_locales)):
+                form_translations = self._get_form_translations(plural_locales, form)
                 if len({self._placeholders(v) for v in form_translations.values()}) > 1:
                     messages.append(f"plural form '{form}': {self._format_groups(form_translations)}")
             return "inconsistent placeholders across locales for " + "; ".join(messages)
@@ -266,11 +257,21 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
         return f"inconsistent placeholders across locales: {self._format_groups(plain_locales)}"
 
     @staticmethod
-    def _format_groups(translations):
+    def _collect_plural_forms(plural_locales):
+        forms = set()
+        for value in plural_locales.values():
+            forms.update(value.keys())
+        return forms
+
+    @staticmethod
+    def _get_form_translations(plural_locales, form):
+        return {locale: value[form] for locale, value in plural_locales.items() if form in value}
+
+    @classmethod
+    def _format_groups(cls, translations):
         groups = {}
         for locale, value in translations.items():
-            placeholders = tuple(sorted(PlaceholderConsistencyRule._iter_placeholders(value)))
-            groups.setdefault(placeholders, []).append(locale)
+            groups.setdefault(cls._placeholders(value), []).append(locale)
         parts = []
         for placeholders, locales in sorted(groups.items(), key=lambda item: sorted(item[1])):
             display = f"[{', '.join(placeholders)}]" if placeholders else "[]"
