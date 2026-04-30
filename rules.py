@@ -193,10 +193,16 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
     placeholders, but a given form must be consistent across locales.
     """
 
-    # Matches printf-style and Objective-C/Swift placeholders:
-    #   %s, %d, %i, %f, %x, %c, %@, with optional positional index (%1$s),
-    #   flags, width, precision and length modifiers (%-3.2f, %ld, ...).
-    # The `%%` alternative captures escaped percents so they aren't mistaken for placeholders.
+    # Matches printf-style and Objective-C/Swift placeholders, e.g. %s, %d, %i, %f, %x, %c, %@,
+    # %1$s, %2$d, %ld, %lld, %-3.2f, % d, %#x. Components, in order:
+    #   %                          literal percent sign
+    #   (?:\d+\$)?                 optional positional index, e.g. 1$ in %1$s
+    #   [+\-# 0]*                  optional flags (sign, alt form, padding, ...)
+    #   \d*                        optional minimum width
+    #   (?:\.\d+)?                 optional precision, e.g. .2 in %.2f
+    #   [hlLzjt]*                  optional length modifiers, e.g. l in %ld
+    #   [a-zA-Z@]                  conversion specifier (s, d, f, @, ...)
+    # The leading `%%` alternative captures escaped percents so they aren't mistaken for placeholders.
     PLACEHOLDER_PATTERN = re.compile(
         r"%%|%(?:\d+\$)?[+\-# 0]*\d*(?:\.\d+)?[hlLzjt]*[a-zA-Z@]"
     )
@@ -218,8 +224,7 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
         return isinstance(value, dict)
 
     def is_matching(self, translations):
-        plural_locales = {locale: value for locale, value in translations.items() if self._is_plural(value)}
-        plain_locales = {locale: value for locale, value in translations.items() if not self._is_plural(value)}
+        plural_locales, plain_locales = self._partition(translations)
 
         # Mixed: some locales declare the key as a plural and others as a plain string.
         if plural_locales and plain_locales:
@@ -235,8 +240,7 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
         return len({self._placeholders(v) for v in plain_locales.values()}) > 1
 
     def get_explanation(self, translations):
-        plural_locales = {locale: value for locale, value in translations.items() if self._is_plural(value)}
-        plain_locales = {locale: value for locale, value in translations.items() if not self._is_plural(value)}
+        plural_locales, plain_locales = self._partition(translations)
 
         if plural_locales and plain_locales:
             plural = sorted(plural_locales.keys())
@@ -255,6 +259,15 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
             return "inconsistent placeholders across locales for " + "; ".join(messages)
 
         return f"inconsistent placeholders across locales: {self._format_groups(plain_locales)}"
+
+    @classmethod
+    def _partition(cls, translations):
+        """Split translations into (plural_locales, plain_locales) in a single pass."""
+        plural_locales, plain_locales = {}, {}
+        for locale, value in translations.items():
+            target = plural_locales if cls._is_plural(value) else plain_locales
+            target[locale] = value
+        return plural_locales, plain_locales
 
     @staticmethod
     def _collect_plural_forms(plural_locales):
