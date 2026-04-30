@@ -158,7 +158,8 @@ class CrossLocaleRule:
         """Check a key across all its translations.
 
         Args:
-            string_id: The key identifier.
+            string_id: The key identifier. If the original key was a plural, check will be called multiple times with a distinct
+                       string_id for each plural form.
             translations: A dict of {locale: value} for this key.
 
         Returns:
@@ -208,41 +209,10 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
     )
 
     def is_matching(self, translations):
-        plural_locales, plain_locales = self._split_plurals_and_plain_strings(translations)
-
-        # Mixed: some locales declare the key as a plural and others as a plain string.
-        if plural_locales and plain_locales:
-            return True
-
-        if plural_locales:
-            for form in self._collect_plural_forms(plural_locales):
-                form_translations = self._get_form_translations(plural_locales, form)
-                if len({self._extract_placeholders(v) for v in form_translations.values()}) > 1:
-                    return True
-            return False
-        else:
-            return len({self._extract_placeholders(v) for v in plain_locales.values()}) > 1
+        return len({self._extract_placeholders(v) for v in translations.values()}) > 1
 
     def get_explanation(self, translations):
-        plural_locales, plain_locales = self._split_plurals_and_plain_strings(translations)
-
-        if plural_locales and plain_locales:
-            plural = sorted(plural_locales.keys())
-            plain = sorted(plain_locales.keys())
-            return (
-                "inconsistent placeholders: key declared as a plural in "
-                f"[{', '.join(plural)}] but as a plain string in [{', '.join(plain)}]"
-            )
-
-        if plural_locales:
-            messages = []
-            for form in sorted(self._collect_plural_forms(plural_locales)):
-                form_translations = self._get_form_translations(plural_locales, form)
-                if len({self._extract_placeholders(v) for v in form_translations.values()}) > 1:
-                    messages.append(f"plural form '{form}': {self._format_groups(form_translations)}")
-            return "inconsistent placeholders across locales for " + "; ".join(messages)
-        else:
-            return f"inconsistent placeholders across locales: {self._format_groups(plain_locales)}"
+        return f"inconsistent placeholders across locales: {self._format_groups(translations)}"
 
     @classmethod
     def _iter_placeholders(cls, value):
@@ -256,30 +226,6 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
     def _extract_placeholders(cls, value):
         extracted_placeholders = sorted(cls._iter_placeholders(value))
         return tuple(extracted_placeholders)
-
-    @staticmethod
-    def _is_plural(value):
-        return isinstance(value, dict)
-
-    @classmethod
-    def _split_plurals_and_plain_strings(cls, translations):
-        """Split translations into (plural_locales, plain_locales) in a single pass."""
-        plural_locales, plain_locales = {}, {}
-        for locale, value in translations.items():
-            target = plural_locales if cls._is_plural(value) else plain_locales
-            target[locale] = value
-        return plural_locales, plain_locales
-
-    @staticmethod
-    def _collect_plural_forms(plural_locales):
-        forms = set()
-        for value in plural_locales.values():
-            forms.update(value.keys())
-        return forms
-
-    @staticmethod
-    def _get_form_translations(plural_locales, form):
-        return {locale: value[form] for locale, value in plural_locales.items() if form in value}
 
     @classmethod
     def _format_groups(cls, translations):
