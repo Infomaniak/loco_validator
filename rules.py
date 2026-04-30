@@ -207,24 +207,8 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
         r"%%|%(?:\d+\$)?[+\-# 0]*\d*(?:\.\d+)?[hlLzjt]*[a-zA-Z@]"
     )
 
-    @classmethod
-    def _iter_placeholders(cls, value):
-        for match in cls.PLACEHOLDER_PATTERN.finditer(value or ""):
-            text = match.group(0)
-            if text == "%%":
-                continue
-            yield text
-
-    @classmethod
-    def _placeholders(cls, value):
-        return tuple(sorted(cls._iter_placeholders(value)))
-
-    @staticmethod
-    def _is_plural(value):
-        return isinstance(value, dict)
-
     def is_matching(self, translations):
-        plural_locales, plain_locales = self._partition(translations)
+        plural_locales, plain_locales = self._split_plurals_and_plain_strings(translations)
 
         # Mixed: some locales declare the key as a plural and others as a plain string.
         if plural_locales and plain_locales:
@@ -233,14 +217,14 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
         if plural_locales:
             for form in self._collect_plural_forms(plural_locales):
                 form_translations = self._get_form_translations(plural_locales, form)
-                if len({self._placeholders(v) for v in form_translations.values()}) > 1:
+                if len({self._extract_placeholders(v) for v in form_translations.values()}) > 1:
                     return True
             return False
-
-        return len({self._placeholders(v) for v in plain_locales.values()}) > 1
+        else:
+            return len({self._extract_placeholders(v) for v in plain_locales.values()}) > 1
 
     def get_explanation(self, translations):
-        plural_locales, plain_locales = self._partition(translations)
+        plural_locales, plain_locales = self._split_plurals_and_plain_strings(translations)
 
         if plural_locales and plain_locales:
             plural = sorted(plural_locales.keys())
@@ -254,14 +238,31 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
             messages = []
             for form in sorted(self._collect_plural_forms(plural_locales)):
                 form_translations = self._get_form_translations(plural_locales, form)
-                if len({self._placeholders(v) for v in form_translations.values()}) > 1:
+                if len({self._extract_placeholders(v) for v in form_translations.values()}) > 1:
                     messages.append(f"plural form '{form}': {self._format_groups(form_translations)}")
             return "inconsistent placeholders across locales for " + "; ".join(messages)
-
-        return f"inconsistent placeholders across locales: {self._format_groups(plain_locales)}"
+        else:
+            return f"inconsistent placeholders across locales: {self._format_groups(plain_locales)}"
 
     @classmethod
-    def _partition(cls, translations):
+    def _iter_placeholders(cls, value):
+        for match in cls.PLACEHOLDER_PATTERN.finditer(value or ""):
+            text = match.group(0)
+            if text == "%%":
+                continue
+            yield text
+
+    @classmethod
+    def _extract_placeholders(cls, value):
+        extracted_placeholders = sorted(cls._iter_placeholders(value))
+        return tuple(extracted_placeholders)
+
+    @staticmethod
+    def _is_plural(value):
+        return isinstance(value, dict)
+
+    @classmethod
+    def _split_plurals_and_plain_strings(cls, translations):
         """Split translations into (plural_locales, plain_locales) in a single pass."""
         plural_locales, plain_locales = {}, {}
         for locale, value in translations.items():
@@ -284,7 +285,7 @@ class PlaceholderConsistencyRule(CrossLocaleRule):
     def _format_groups(cls, translations):
         groups = {}
         for locale, value in translations.items():
-            groups.setdefault(cls._placeholders(value), []).append(locale)
+            groups.setdefault(cls._extract_placeholders(value), []).append(locale)
         parts = []
         for placeholders, locales in sorted(groups.items(), key=lambda item: sorted(item[1])):
             display = f"[{', '.join(placeholders)}]" if placeholders else "[]"
