@@ -6,6 +6,7 @@ from .rules import (
     SpaceBeforeColonRule,
     EndsWithRule,
     ConsistentEndingRule,
+    PlaceholderConsistencyRule,
 )
 
 global_rules = [
@@ -146,6 +147,7 @@ cross_locale_rules = [
         "sharedConflictDescription",  # kDrive
     ]),
     ConsistentEndingRule("\\n"),
+    PlaceholderConsistencyRule(),
 ]
 
 

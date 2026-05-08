@@ -158,7 +158,8 @@ class CrossLocaleRule:
         """Check a key across all its translations.
 
         Args:
-            string_id: The key identifier.
+            string_id: The key identifier. If the original key was a plural, check will be called multiple times with a distinct
+                       string_id for each plural form.
             translations: A dict of {locale: value} for this key.
 
         Returns:
@@ -183,6 +184,59 @@ class CrossLocaleRule:
 
     def get_explanation(self, translations):
         raise NotImplementedError("CrossLocaleRule did not specify an explanation message")
+
+
+class PlaceholderConsistencyRule(CrossLocaleRule):
+    """Ensures that all translations of a key use the same placeholders (e.g. %s, %d, %1$s, %@).
+
+    Plurals (when the value is a dict keyed by plural form like 'one', 'other', ...) are checked
+    per form across locales: different forms of the same plural may legitimately use different
+    placeholders, but a given form must be consistent across locales.
+    """
+
+    # Matches printf-style and Objective-C/Swift placeholders, e.g. %s, %d, %i, %f, %x, %c, %@,
+    # %1$s, %2$d, %ld, %lld, %-3.2f, % d, %#x. Components, in order:
+    #   %                          literal percent sign
+    #   (?:\d+\$)?                 optional positional index, e.g. 1$ in %1$s
+    #   [+\-# 0]*                  optional flags (sign, alt form, padding, ...)
+    #   \d*                        optional minimum width
+    #   (?:\.\d+)?                 optional precision, e.g. .2 in %.2f
+    #   [hlLzjt]*                  optional length modifiers, e.g. l in %ld
+    #   [a-zA-Z@]                  conversion specifier (s, d, f, @, ...)
+    # The leading `%%` alternative captures escaped percents so they aren't mistaken for placeholders.
+    PLACEHOLDER_PATTERN = re.compile(
+        r"%%|%(?:\d+\$)?[+\-# 0]*\d*(?:\.\d+)?[hlLzjt]*[a-zA-Z@]"
+    )
+
+    def is_matching(self, translations):
+        return len({self._extract_placeholders(v) for v in translations.values()}) > 1
+
+    def get_explanation(self, translations):
+        return f"inconsistent placeholders across locales: {self._format_groups(translations)}"
+
+    @classmethod
+    def _iter_placeholders(cls, value):
+        for match in cls.PLACEHOLDER_PATTERN.finditer(value or ""):
+            text = match.group(0)
+            if text == "%%":
+                continue
+            yield text
+
+    @classmethod
+    def _extract_placeholders(cls, value):
+        extracted_placeholders = sorted(cls._iter_placeholders(value))
+        return tuple(extracted_placeholders)
+
+    @classmethod
+    def _format_groups(cls, translations):
+        groups = {}
+        for locale, value in translations.items():
+            groups.setdefault(cls._extract_placeholders(value), []).append(locale)
+        parts = []
+        for placeholders, locales in sorted(groups.items(), key=lambda item: sorted(item[1])):
+            display = f"[{', '.join(placeholders)}]" if placeholders else "[]"
+            parts.append(f"{display} in [{', '.join(sorted(locales))}]")
+        return ", ".join(parts)
 
 
 class ConsistentEndingRule(CrossLocaleRule):
