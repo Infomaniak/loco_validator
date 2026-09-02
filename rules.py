@@ -15,13 +15,13 @@ class Rule:
         if input_string == "" or input_string is None:
             return False
 
-        is_matching = self.is_matching(input_string)
+        is_matching = self.is_matching(input_string, language)
         if is_matching:
             self.warn(language, string_id, input_string)
 
         return is_matching
 
-    def is_matching(self, input_string):
+    def is_matching(self, input_string, language):
         raise NotImplementedError
 
     def warn(self, language, string_id, string_value):
@@ -41,7 +41,7 @@ class ExistenceRule(Rule):
         self.sequence = sequence.lower()
         self.custom_explanation = custom_explanation
 
-    def is_matching(self, input_string):
+    def is_matching(self, input_string, _):
         return input_string.lower().__contains__(self.sequence)
 
     def get_explanation(self, string_value):
@@ -58,7 +58,7 @@ class EndsWithRule(Rule):
         self.sequence = sequence.lower()
         self.custom_explanation = custom_explanation
 
-    def is_matching(self, input_string):
+    def is_matching(self, input_string, _):
         return input_string.lower().endswith(self.sequence)
 
     def get_explanation(self, string_value):
@@ -79,7 +79,7 @@ class SpaceBeforeRule(Rule):
         super().__init__(exception_ids)
         self.sequence = sequence.lower()
 
-    def is_matching(self, input_string):
+    def is_matching(self, input_string, _):
         matches = input_string.split(self.sequence)
         if len(matches) == 1:
             return False
@@ -98,7 +98,7 @@ class SpaceBeforeColonRule(Rule):
     def __init__(self, exception_ids=None):
         super().__init__(exception_ids)
 
-    def is_matching(self, input_string):
+    def is_matching(self, input_string, _):
         matches = input_string.split(":")
         if len(matches) == 1:
             return False
@@ -124,7 +124,7 @@ class FrenchEmailRule(Rule):
 
         self.authorized_words = ["infomaniak", "stockage", "adresse", "application", "app"]
 
-    def is_matching(self, input_string):
+    def is_matching(self, input_string, _):
         results = re.search(self.pattern, input_string.lower())
         if results is None:
             return False
@@ -143,6 +143,22 @@ class FrenchEmailRule(Rule):
 
     def get_explanation(self, string_value):
         return f"in french only '{self.reason}' is authorized"
+
+
+class PluralizedProductNameRule(Rule):
+    def __init__(self, sequence, exception_ids=None):
+        super().__init__(exception_ids)
+        self.sequence = sequence.lower()
+
+    def is_matching(self, input_string, language):
+        # In Finnish, kDrivesta would be the inflected form of the product name kDrive which is valid and not pluralized.
+        if language == "fi":
+            return False
+        else:
+            return input_string.lower().__contains__(self.sequence + "s")
+
+    def get_explanation(self, string_value):
+        return f"found sequence [{self.sequence}s]. Product names should not be pluralized"
 
 
 class CrossLocaleRule:

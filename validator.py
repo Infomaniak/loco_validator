@@ -7,6 +7,7 @@ from .rules import (
     EndsWithRule,
     ConsistentEndingRule,
     PlaceholderConsistencyRule,
+    PluralizedProductNameRule,
 )
 
 global_rules = [
@@ -18,12 +19,12 @@ global_rules = [
     ExistenceRule(r" \n", "No space before a new line"),
     ExistenceRule(r"\n ", "No space after a new line"),
     ExistenceRule(r"\\n", "No escaped new line. You probably meant to add a real new line"),
-    ExistenceRule("kDrives", "Product names should not be pluralized"),
-    ExistenceRule("kMeets", "Product names should not be pluralized"),
-    ExistenceRule("SwissTransfers", "Product names should not be pluralized"),
-    ExistenceRule("my kSuites", "Product names should not be pluralized"),
-    ExistenceRule("Infomaniak Mails", "Product names should not be pluralized"),
-    ExistenceRule("Infomaniak Calendars", "Product names should not be pluralized"),
+    PluralizedProductNameRule("kDrive"),
+    PluralizedProductNameRule("kMeet"),
+    PluralizedProductNameRule("SwissTransfer"),
+    PluralizedProductNameRule("my kSuite"),
+    PluralizedProductNameRule("Infomaniak Mail"),
+    PluralizedProductNameRule("Infomaniak Calendar"),
     # For Android because of the XML format that converts trailing spaces as the "\u0020" string of characters
     EndsWithRule(
         r"\u0020",
